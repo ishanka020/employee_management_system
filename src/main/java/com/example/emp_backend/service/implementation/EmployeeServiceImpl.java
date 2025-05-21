@@ -7,6 +7,10 @@ import com.example.emp_backend.repository.EmployeeRepository;
 import com.example.emp_backend.service.EmployeeService;
 import com.example.emp_backend.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,6 +42,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employees.stream()
                 .map(EmployeeMapper::mapToEmployeeDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<EmployeeDto> getAllEmployeesPaginated(int page, int size, String sortBy, String sortDir, String keyword) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Employee> employeePage;
+        if (keyword != null && !keyword.isEmpty()) {
+            employeePage = employeeRepository.searchEmployees(keyword, pageable);
+        } else {
+            employeePage = employeeRepository.findAll(pageable);
+        }
+
+        return employeePage.map(EmployeeMapper::mapToEmployeeDto);
     }
 
     @Override

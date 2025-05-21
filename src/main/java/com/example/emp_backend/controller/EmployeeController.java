@@ -3,6 +3,7 @@ package com.example.emp_backend.controller;
 import com.example.emp_backend.dto.EmployeeDto;
 import com.example.emp_backend.service.EmployeeService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,10 +37,15 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeDto);
     }
 
-    // Get All Employees API
+    // Get All Employees API (with pagination and search)
     @GetMapping
-    public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
-        List<EmployeeDto> employees = employeeService.getAllEmployees();
+    public ResponseEntity<Page<EmployeeDto>> getAllEmployees(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String keyword) {
+        Page<EmployeeDto> employees = employeeService.getAllEmployeesPaginated(page, size, sortBy, sortDir, keyword);
         return ResponseEntity.ok(employees);
     }
 
